@@ -100,6 +100,89 @@ export class Annoyer {
   get notification() {
     return this._settings.notification;
   }
+
+  // Ongoing low urgency notification with the countdown of running timers.
+  // The lock screen lists unseen notifications and keeps the source title
+  // up to date, so the countdown lives in the source title. Called on every
+  // timer tick, also while the screen is locked and the indicator detached.
+  update_countdown() {
+    var running = this._timers.sort_by_running();
+    if (running.length === 0) {
+      this._countdown_dismissed = false;
+      this._clear_countdown();
+      return;
+    }
+    if (!this._settings.lock_screen_countdown || this._countdown_dismissed) {
+      this._clear_countdown();
+      return;
+    }
+
+    var title = running.map(t => "%s %s".format(t.name.trim(), t.remaining_hms().toString(true))).join(" · ");
+    var body = running.map(t => _("due at %s").format(t.end_time())).join(" · ");
+
+    if (!this._countdown) {
+      this._create_countdown(title, body);
+      return;
+    }
+    if (this._countdown_source.title !== title) {
+      this._countdown_source.title = title;
+      this._countdown.title = title;
+    }
+    if (this._countdown.body !== body) {
+      this._countdown.body = body;
+    }
+  }
+
+  _create_countdown(title, body) {
+    var source = new MessageTray.Source({
+      title: title,
+      icon: this._timers.fullIcon
+    });
+    source.connect('destroy', () => {
+      this._countdown_source = null;
+    });
+    Main.messageTray.add(source);
+
+    // low urgency notifications never show a banner
+    var notification = new MessageTray.Notification({
+      source: source,
+      title: title,
+      body: body,
+      gicon: this._timers.fullIcon,
+      urgency: MessageTray.Urgency.LOW,
+      resident: true
+    });
+    // opening the notification list acknowledges all notifications, but the
+    // lock screen only shows unseen ones
+    notification.connect('notify::acknowledged', () => {
+      if (notification.acknowledged && this._countdown === notification) {
+        notification.acknowledged = false;
+      }
+    });
+    notification.connect('destroy', () => {
+      if (this._countdown !== notification) {
+        return;
+      }
+      this._countdown = null;
+      if (!this._clearing_countdown) {
+        // dismissed by the user, don't bring it back for these timers
+        this.logger.debug("Countdown notification dismissed");
+        this._countdown_dismissed = true;
+      }
+    });
+    source.addNotification(notification);
+
+    this._countdown_source = source;
+    this._countdown = notification;
+  }
+
+  _clear_countdown() {
+    if (this._countdown) {
+      this._clearing_countdown = true;
+      this._countdown.destroy();
+      this._clearing_countdown = false;
+    }
+  }
 }
 
 const KitchenTimerNotifier = GObject.registerClass(

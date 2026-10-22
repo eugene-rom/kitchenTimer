@@ -62,6 +62,11 @@ https://developer.gnome.org/glib/stable/gvariant-text.html
       <default>false</default>
       <summary>Make the notification wait for input</summary>
     </key>
+    <key name="lock-screen-countdown" type="b">
+      <default>true</default>
+      <summary>Show running timers countdown on the lock screen</summary>
+      <description>Keep a low priority notification with the remaining time of running timers, it is shown on the lock screen and in the notification list</description>
+    </key>
     <key name="notification-longtimeout" type="i">
       <default>30000</default>
       <range min="1000" max="3600000"/>

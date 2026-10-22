@@ -162,6 +162,7 @@ export class Settings {
       detect_dupes: this.detect_dupes,
       inhibit: this.inhibit,
       inhibit_max: this.inhibit_max,
+      lock_screen_countdown: this.lock_screen_countdown,
       notification_sticky: this.notification_sticky,
       notification: this.notification,
       notification_longtimeout: this.notification_longtimeout,
@@ -275,6 +276,14 @@ export class Settings {
 
   set notification_sticky(bool) {
     this.settings.set_boolean(bool);
+  }
+
+  get lock_screen_countdown() {
+    return this.settings.get_boolean('lock-screen-countdown');
+  }
+
+  set lock_screen_countdown(bool) {
+    this.settings.set_boolean('lock-screen-countdown', bool);
   }
 
   get notification_longtimeout() {

@@ -767,6 +767,7 @@ class PreferencesBuilder {
 
     this._bo_ssb('notification', 'active');
     this._bo_ssb('notification_sticky', 'active');
+    this._bo_ssb('lock_screen_countdown', 'active');
 
     let show_time = this._bo('show_time');
     this._ssb('show-time', show_time, 'active');

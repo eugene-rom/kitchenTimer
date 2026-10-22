@@ -740,6 +740,7 @@ export class Timer {
     }
 
     timersInstance.inhibitor.inhibit_timer(timer);
+    timersInstance.notifier.update_countdown();
 
     //var delta = Math.ceil((end-now) / 1000);
     let hms = timer.remaining_hms(now);
@@ -818,6 +819,7 @@ export class Timer {
     timersInstance.set_panel_name("");
     timersInstance.set_panel_label("");
     timersInstance.saveRunningTimers();
+    timersInstance.notifier.update_countdown();
 
     if (this.notify_volume || this.notify_muted) {
       let stream = mixerControl.get_default_sink();
