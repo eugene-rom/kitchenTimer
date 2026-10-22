@@ -16,34 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const GETTEXT_DOMAIN = 'kitchen-timer-blackjackshellac';
-const Gettext = imports.gettext.domain(GETTEXT_DOMAIN);
-const _ = Gettext.gettext;
+import GLib from 'gi://GLib';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Gio = imports.gi.Gio;
-const GioSSS = Gio.SettingsSchemaSource;
-const GLib = imports.gi.GLib;
-
-const Me = ExtensionUtils.getCurrentExtension();
-const Utils = Me.imports.utils;
-const Logger = Me.imports.logger.Logger;
+import {Logger} from './logger.js';
+import {getExtension} from './context.js';
 
 // adapted from Bluetooth-quick-connect extension by Bartosz Jaroszewski
-var Settings = class Settings {
+export class Settings {
   constructor() {
-    // try to recompile the schema
-    let compile_schemas = [ Me.path+"/bin/compile_schemas.sh" ];
-    let [ exit_status, stdout, stderr ] = Utils.execute(compile_schemas);
-
-    this.settings = ExtensionUtils.getSettings();
-    this.logger = new Logger('kt settings', this.settings);
-
-    if (exit_status !== 0) {
-      this.logger.warn("Failed to compile schemas: %s\n%s", stdout, stderr);
-    } else {
-      this.logger.debug("compile_schemas: %s", stdout);
-    }
+    this.settings = getExtension().getSettings();
+    this.logger = new Logger('kt settings', this);
 
     this._timer_defaults = {
       name: "",
@@ -445,4 +427,4 @@ var Settings = class Settings {
     this.settings.set_boolean('debug', bool);
   }
 
-};
+}
