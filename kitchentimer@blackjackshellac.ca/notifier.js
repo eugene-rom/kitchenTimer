@@ -232,7 +232,10 @@ class KitchenTimerNotifier extends MessageTray.Notification {
     this.forFeedback = true;
     this.isTransient = false;
 
-    this._long_timeout = Utils.setTimeout(this.longTimeout_callback, this.settings.notification_longtimeout, this);
+    // sticky notifications wait for input, others are closed after a while
+    if (!this.resident) {
+      this._long_timeout = Utils.setTimeout(this.longTimeout_callback, this.settings.notification_longtimeout, this);
+    }
 
     this.addAction(_("Restart timer %s").format(this.timer.name), () => {
       this.logger.debug("Restart timer");
